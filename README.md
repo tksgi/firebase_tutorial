@@ -37,3 +37,18 @@ node関連のファイルは `functions` ディレクトリ配下にあるので
 firebase deploy --only functions
 ```
 出力の中にURLがあるため、そこにアクセスすれば関数がトリガーされる
+https://firebase.google.com/docs/functions/get-started?hl=ja#makeuppercase-%E3%82%92%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4%E3%81%97%E3%81%A6%E5%AE%9F%E8%A1%8C%E3%81%99%E3%82%8B
+
+
+# firestoreとの接続
+接続には `firebase-admin` ライブラリを利用する
+以下の2行でセットアップ
+```javascript
+import * as admin from 'firebase-admin';
+admin.initializeApp();
+```
+以下のようにドキュメントを作成する
+```javascript
+const writeResult = await admin.firestore().collection('messages').add({original: original});
+```
+
