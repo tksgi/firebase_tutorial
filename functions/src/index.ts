@@ -4,9 +4,21 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 admin.initializeApp();
 
+// ログ出し
+// import * from '@google-cloud/logging'
+
+// stripeのインポート
+// https://github.com/stripe/stripe-node#usage-with-typescript
+import Stripe from 'stripe'
+const stripe_token = functions.config().stripe.token;
+const stripe = new Stripe(stripe_token, {
+  apiVersion: '2020-03-02',
+  typescript: true,
+});
+
+
 // Start writing Firebase Functions
 // https://firebase.google.com/docs/functions/typescript
-
 export const helloWorld = functions.https.onRequest((request, response) => {
  response.send("Hello from Firebase!");
 });
@@ -14,7 +26,7 @@ export const helloWorld = functions.https.onRequest((request, response) => {
 // https://github.com/firebase/functions-samples/blob/master/quickstarts/uppercase-firestore/functions/index.js
 // リクエストのtextパラメータの値をfirestoreに格納
 export const addMessage = functions.https.onRequest(async (req, res) => {
-  const original = req.query.text;
+  const original = req.body.text;
   const writeResult = await admin.firestore().collection('messages').add({original: original});
   res.json({result: `Message with ID: ${writeResult.id} added.`});
 });
@@ -28,3 +40,16 @@ exports.makeUppercase = functions.firestore.document('/messages/{documentId}')
                                                        const uppercase = original.toUpperCase();
                                                        return snap.ref.set({uppercase}, {merge: true});
                                                      });
+
+
+// stripeのカスタマーを作成
+export const createCustomer = functions.https.onRequest(async (req, res) => {
+  const params: Stripe.CustomerCreateParams = {
+    description: `create test customer named ${req.body.name || "test"}`,
+  };
+
+  const customer: Stripe.Customer = await stripe.customers.create(params);
+
+  console.log(customer.id);
+  res.send("customer successfully created!");
+});
