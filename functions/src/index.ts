@@ -53,3 +53,39 @@ export const createCustomer = functions.https.onRequest(async (req, res) => {
   console.log(customer.id);
   res.send("customer successfully created!");
 });
+
+// shopデータを作成
+export const addShop = functions.https.onRequest(async (req, res) => {
+  console.log(req.body.shopname)
+  const shopName = req.body.shopname || "test shop"
+  const writeResult = await admin.firestore().collection('shop').add({name: shopName});
+  res.json({result: `Message with ID: ${writeResult.id} added.`});
+});
+// shopにサブコレクションとしてメニューを追加
+export const addMenuToShop = functions.https.onRequest(async (req, res) => {
+  const shopName = req.body.shopname
+  const menu = {
+    name: req.body.name,
+    price: req.body.price,
+    description: req.body.description,
+  };
+
+  const query = (await admin.firestore().collection('shop').where('name', '==', shopName).get()).docs
+  switch(query.length) {
+    case 0:
+      res.json({result: 'Error Happend! Please confirm log'});
+      break;
+    case 1:
+       break;
+    default:
+      res.json({result: `Error! Shop name ${shopName} is not unique`});
+  }
+  query.forEach(doc => {
+    console.log(doc)
+    console.log(doc.data())
+    console.log(doc.id)
+  });
+  const writeResult = await admin.firestore().collection('shop').doc(query[0].id).collection('menu').add(menu)
+  res.json({result: `Message with ID: ${writeResult.id} added.`});
+});
+
