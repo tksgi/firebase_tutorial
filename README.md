@@ -1,3 +1,11 @@
+# HTTP関数に関して注意
+このプロジェクトのHTTPトリガー関数については、 `curl` コマンドでリクエストする前提で作成してあるため、公式のヘルプにあるURLの後ろにクエリパラメータを追記してリクエストしてもエラーとなってしまう
+リクエストする際は以下のように行なうこと
+```sh
+curl -X POST "関数のURL" -H "Content-Type:application/json" --data '{"text":"Seiyu"}'
+```
+
+
 # Firebase CLI
 https://firebase.google.com/docs/functions/get-started?hl=ja
 
@@ -71,3 +79,4 @@ https://github.com/stripe/stripe-node#usage-with-typescript
 
 
 **注：外部APIを叩くためには、Firestoreのプロジェクトを従量課金プランにする必要あり！**
+
