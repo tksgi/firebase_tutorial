@@ -52,3 +52,22 @@ admin.initializeApp();
 const writeResult = await admin.firestore().collection('messages').add({original: original});
 ```
 
+# stripeとの接続
+## 環境変数の設定
+以下のコマンドでCloud FunctionsにStripeのキーを設定する(反映させるにはデプロイが必要)
+```sh
+firebase functions:config:set stripe.token=<YOUR STRIPE API KEY>
+```
+ 
+## stripeのインポート
+以下の様に初期化して、移行 `stripe` 変数から利用する
+```javascript
+import Stripe from 'stripe'
+const stripe = new Stripe(functions.config().stripe.token, {
+  apiVersion: '2020-03-02',
+});
+```
+https://github.com/stripe/stripe-node#usage-with-typescript
+
+
+**注：外部APIを叩くためには、Firestoreのプロジェクトを従量課金プランにする必要あり！**
