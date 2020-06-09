@@ -118,3 +118,51 @@ exports.addUserInfo = functions.auth.user().onCreate(async (event) => {
     role: 'user'
   })
 });
+
+// 入れ子になったデータを作成/取得する
+export const createOrder = functions.https.onRequest(async (req, res) => {
+  console.log('function called');
+  const param = {
+    'orderItems': [
+      {'price': 100},
+      {'price': 200},
+    ]
+  };
+  console.log('param created');
+  console.log(param);
+  const collectionRef = admin.firestore().collection('orders');
+  console.log('get collection Reference');
+  const writeResult = await collectionRef.add(param);
+  console.log('added document');
+  res.json({result: `Menu with ID: ${writeResult.id} added.`});
+});
+
+export const getOrderPrice = functions.https.onRequest(async (req, res) => {
+  const ordersRef = admin.firestore().collection('orders');
+  const ordersSnap = await ordersRef.get();
+  ordersSnap.forEach(orderSnap => {
+    let priceSum = 0;
+    const orderItems: Array<{[key: string]: any;}> = orderSnap.get('orderItems');
+    console.log(orderItems);
+    orderItems.forEach((orderItem: {[key: string]: any;}) => {
+      const price: number = orderItem['price'];
+      console.log(price);
+      priceSum += price;
+    });
+    console.log(`sum of price is ${priceSum}`);
+  })
+
+  //if(orderData == null){
+  //  res.send("Order Data is not exist");
+  //  return;
+  //}
+  ////let price = 0;
+  //for(const orderItem in orderData.orderItems){
+  //  //price += orderItem.price;
+  //  console.log(orderItem);
+  //  //console.log(orderItem.price);
+  //};
+  //console.log(orderSnap.get('orderItems'));
+  //res.send(`Order items: ${orderData.orderItems}`);
+  res.send('sum of price is');
+});
