@@ -86,6 +86,35 @@ export const addMenuToShop = functions.https.onRequest(async (req, res) => {
     console.log(doc.id)
   });
   const writeResult = await admin.firestore().collection('shop').doc(query[0].id).collection('menu').add(menu)
-  res.json({result: `Message with ID: ${writeResult.id} added.`});
+  res.json({result: `Menu with ID: ${writeResult.id} added.`});
 });
 
+
+// ユーザー作成
+// export const addUser = functions.https.onRequest(async (req, res) => {
+//   // phoneNumberは+を入れないとemptyと判定される？
+//   const userRecord = await admin.auth().createUser({
+//     email: "tetsu.kasugaib+a@sun-asterisk.com",
+//     emailVerified: false,
+//     phoneNumber: "+01234567890", 
+//     password: "Passw0rd"
+//   });
+//   res.json({result: `User with ID: ${userRecord.uid} added.`});
+// });
+
+// ユーザー作成時にユーザー情報ドキュメントを作成
+exports.addUserInfo = functions.auth.user().onCreate(async (event) => {
+  console.log(event)
+  const user = admin.firestore().collection('users').doc(event.uid);
+  const snapshot = await user.get();
+  console.log(snapshot);
+  // if(snapshot.exists){
+  //   return null
+  // }else{
+  //   return await user.set({phoneNumber: event.phoneNumber});
+  // }
+  await admin.auth().setCustomUserClaims(event.uid, {
+    suspended: false,
+    role: 'user'
+  })
+});
